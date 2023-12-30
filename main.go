@@ -116,7 +116,7 @@ func LoadChalls(rootDir string) (map[string](Challenge), map[string](Flag), erro
 				return challs, flags, err
 			}
 			for _, file := range files {
-				if file.Name() != "challenge.yml" && file.Name() != "flag.txt" {
+				if file.Name() != "challenge.yml" && file.Name() != "challenge.yaml" && file.Name() != "flag.txt" {
 					continue
 				}
 
@@ -128,7 +128,7 @@ func LoadChalls(rootDir string) (map[string](Challenge), map[string](Flag), erro
 					fmt.Printf("\x1b[31mError\x1b[0m: reading the file %v: %v\n", file.Name(), err)
 					return challs, flags, err
 				}
-				if file.Name() == "challenge.yml" {
+				if file.Name() == "challenge.yml" || file.Name() == "challenge.yaml" {
 					parsed, err := ParseChall(filePath, content)
 					if err != nil {
 						continue
