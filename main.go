@@ -2,10 +2,11 @@ package main
 
 import (
 	"fmt"
-	"gopkg.in/yaml.v3"
 	"os"
 	"regexp"
 	"strings"
+
+	"gopkg.in/yaml.v3"
 )
 
 type YamlFlag struct {
@@ -25,7 +26,7 @@ type Challenge struct {
 func ParseChall(filePath string, content []byte) (Challenge, error) {
 	text := string(content)
 	if strings.Contains(text, "\t") {
-		fmt.Printf("Warning: TAB is not recommended in the YAML file (%v).\nPlease see the FAQ: https://yaml.org/faq.html\n", filePath)
+		fmt.Printf("\x1b[33mWarning\x1b[0m: TAB is not recommended in the YAML file (%v).\nPlease see the FAQ: https://yaml.org/faq.html\n", filePath)
 		content = []byte(strings.ReplaceAll(text, "\t", "    "))
 	}
 
@@ -36,7 +37,7 @@ func ParseChall(filePath string, content []byte) (Challenge, error) {
 	var challYaml ChallYaml
 	err := yaml.Unmarshal(content, &challYaml)
 	if err != nil {
-		fmt.Printf("Error unmarshalling the file %v: %v\n", filePath, err)
+		fmt.Printf("\x1b[31mError\x1b[0m: unmarshalling the file %v: %v\n", filePath, err)
 		return chall, err
 	}
 
@@ -56,7 +57,7 @@ func ParseChall(filePath string, content []byte) (Challenge, error) {
 			}
 			flagContent, ok := flagMap["content"]
 			if !ok {
-				return chall, fmt.Errorf("flag content is not specified")
+				return chall, fmt.Errorf("\x1b[31mError\x1b[0m: flag content is not specified")
 			}
 			flagData, ok := flagMap["data"]
 			if !ok {
@@ -68,7 +69,7 @@ func ParseChall(filePath string, content []byte) (Challenge, error) {
 				Data:    flagData.(string),
 			})
 		default:
-			return chall, fmt.Errorf("unknown flag type: %v", flag)
+			return chall, fmt.Errorf("\x1b[31mError\x1b[0m: unknown flag type: %v", flag)
 		}
 	}
 
@@ -89,31 +90,30 @@ func ParseFlag(filePath string, content []byte) Flag {
 	return strings.Split(text, "\n")
 }
 
-func main() {
-	rootDit := "example"
+func LoadChalls(rootDir string) (map[string](Challenge), map[string](Flag), error) {
 	challs := map[string](Challenge){}
 	flags := map[string](Flag){}
 
-	fmt.Println("=== Reading the challenges...")
-	genres, err := os.ReadDir(rootDit)
+	fmt.Println("== Reading the challenges...")
+	genres, err := os.ReadDir(rootDir)
 	if err != nil {
-		fmt.Printf("Error reading the directory %v: %v\n", ".", err)
-		return
+		fmt.Printf("\x1b[31mError\x1b[0m: reading the directory %v: %v\n", ".", err)
+		return challs, flags, err
 	}
 
 	for _, genre := range genres {
-		genrePath := fmt.Sprintf("%s/%s", rootDit, genre.Name())
+		genrePath := fmt.Sprintf("%s/%s", rootDir, genre.Name())
 		challDirs, err := os.ReadDir(genrePath)
 		if err != nil {
-			fmt.Printf("Error reading the directory %v: %v\n", ".", err)
-			return
+			fmt.Printf("\x1b[31mError\x1b[0m: reading the directory %v: %v\n", ".", err)
+			return challs, flags, err
 		}
 		for _, chall := range challDirs {
 			challPath := fmt.Sprintf("%s/%s", genrePath, chall.Name())
 			files, err := os.ReadDir(challPath)
 			if err != nil {
-				fmt.Printf("Error reading the directory %v: %v\n", ".", err)
-				return
+				fmt.Printf("\x1b[31mError\x1b[0m: reading the directory %v: %v\n", ".", err)
+				return challs, flags, err
 			}
 			for _, file := range files {
 				if file.Name() != "challenge.yml" && file.Name() != "flag.txt" {
@@ -125,21 +125,69 @@ func main() {
 
 				content, err := os.ReadFile(filePath)
 				if err != nil {
-					fmt.Printf("Error reading the file %v: %v\n", file.Name(), err)
-					return
+					fmt.Printf("\x1b[31mError\x1b[0m: reading the file %v: %v\n", file.Name(), err)
+					return challs, flags, err
 				}
 				if file.Name() == "challenge.yml" {
 					parsed, err := ParseChall(filePath, content)
 					if err != nil {
 						continue
 					}
-					challs[filePath] = parsed
+					challs[challPath] = parsed
 				}
 				if file.Name() == "flag.txt" {
 					parsed := ParseFlag(filePath, content)
-					flags[filePath] = parsed
+					flags[challPath] = parsed
 				}
 			}
 		}
 	}
+	return challs, flags, nil
+}
+
+func UnitTest(challs map[string](Challenge), flagMap map[string](Flag)) {
+	fmt.Println("== Unit testing...")
+	for challPath, flags := range flagMap {
+		fmt.Printf("\n=== Unit testing the challenge: %v\n", challPath)
+		chall := challs[challPath]
+		for _, flag := range flags {
+			ok := false
+			for _, challFlags := range chall.Flags {
+				actually := flag
+				expected := challFlags.Content
+				caseInSensitive := challFlags.Data == "case_insensitive"
+				if caseInSensitive {
+					expected = strings.ToLower(expected)
+					actually = strings.ToLower(actually)
+				}
+				if challFlags.Type == "static" && actually == expected {
+					ok = true
+					break
+				}
+				if challFlags.Type == "regex" {
+					reg := regexp.MustCompile(expected)
+					if reg.MatchString(actually) {
+						ok = true
+						break
+					}
+				}
+			}
+			if ok {
+				fmt.Printf("\x1b[32mPASS\x1b[0m: %v (%v)\n", flag, challPath)
+			} else {
+				fmt.Printf("\x1b[31mFAIL\x1b[0m: %v (%v)\n", flag, challPath)
+			}
+		}
+	}
+}
+
+func main() {
+	rootDir := "example"
+	challs, flags, err := LoadChalls(rootDir)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	fmt.Println("")
+	UnitTest(challs, flags)
 }
