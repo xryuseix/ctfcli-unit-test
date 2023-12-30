@@ -26,6 +26,7 @@ jobs:
         run: make test
 
       - name: Unit Test for CTFd/ctfcli
+        continue-on-error: true # failture test is included
         uses: xryuseix/ctfcli-unit-test@main
         with:
           target_directory: example
