@@ -34,7 +34,6 @@ flags:
     - {
         type: "static",
         content: "flag{flag3}",
-        data: "case_insensitive",
     }
     - {
         type: "regex",
@@ -57,7 +56,7 @@ flags:
 			{
 				Type:    "static",
 				Content: "flag{flag3}",
-				Data:    "case_insensitive",
+				Data:    "case_sensitive",
 			},
 			{
 				Type:    "regex",

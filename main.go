@@ -9,17 +9,17 @@ import (
 )
 
 type YamlFlag struct {
-    Type    string `yaml:"type,omitempty"`
-    Content string `yaml:"content,omitempty"`
-    Data    string `yaml:"data,omitempty"`
+	Type    string `yaml:"type,omitempty"`
+	Content string `yaml:"content,omitempty"`
+	Data    string `yaml:"data,omitempty"`
 }
 
 type ChallYaml struct {
-    Flags []interface{} `yaml:"flags"`
+	Flags []interface{} `yaml:"flags"`
 }
 
 type Challenge struct {
-    Flags []YamlFlag
+	Flags []YamlFlag
 }
 
 func ParseChall(filePath string, content []byte) (Challenge, error) {
@@ -28,7 +28,7 @@ func ParseChall(filePath string, content []byte) (Challenge, error) {
 		fmt.Printf("Warning: TAB is not recommended in the YAML file (%v).\nPlease see the FAQ: https://yaml.org/faq.html\n", filePath)
 		content = []byte(strings.ReplaceAll(text, "\t", "    "))
 	}
-	
+
 	chall := Challenge{
 		Flags: []YamlFlag{},
 	}
@@ -46,20 +46,32 @@ func ParseChall(filePath string, content []byte) (Challenge, error) {
 			chall.Flags = append(chall.Flags, YamlFlag{
 				Type:    "static",
 				Content: flag.(string),
-				Data:   "case_sensitive",
+				Data:    "case_sensitive",
 			})
 		case map[string]interface{}:
 			flagMap := flag.(map[string]interface{})
+			flagType, ok := flagMap["type"]
+			if !ok {
+				flagType = "static"
+			}
+			flagContent, ok := flagMap["content"]
+			if !ok {
+				return chall, fmt.Errorf("flag content is not specified")
+			}
+			flagData, ok := flagMap["data"]
+			if !ok {
+				flagData = "case_sensitive"
+			}
 			chall.Flags = append(chall.Flags, YamlFlag{
-				Type:    flagMap["type"].(string),
-				Content: flagMap["content"].(string),
-				Data:   flagMap["data"].(string),
+				Type:    flagType.(string),
+				Content: flagContent.(string),
+				Data:    flagData.(string),
 			})
 		default:
 			return chall, fmt.Errorf("unknown flag type: %v", flag)
 		}
 	}
-	
+
 	return chall, nil
 }
 
@@ -80,8 +92,9 @@ func ParseFlag(filePath string, content []byte) Flag {
 func main() {
 	rootDit := "example"
 	challs := map[string](Challenge){}
-	flags := map[string]([]string){}
+	flags := map[string](Flag){}
 
+	fmt.Println("=== Reading the challenges...")
 	genres, err := os.ReadDir(rootDit)
 	if err != nil {
 		fmt.Printf("Error reading the directory %v: %v\n", ".", err)
@@ -108,6 +121,8 @@ func main() {
 				}
 
 				filePath := fmt.Sprintf("%s/%s", challPath, file.Name())
+				fmt.Println("=== Reading the file: " + filePath)
+
 				content, err := os.ReadFile(filePath)
 				if err != nil {
 					fmt.Printf("Error reading the file %v: %v\n", file.Name(), err)
