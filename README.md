@@ -1,8 +1,8 @@
 [![Test](https://github.com/xryuseix/ctfcli-unit-test/actions/workflows/test.yaml/badge.svg)](https://github.com/xryuseix/ctfcli-unit-test/actions/workflows/test.yaml)
 
-# Unit Test Tool for [CTFd/ctfcli](https://github.com/CTFd/ctfcli)
+# ctfcli Unit Test
 
-CI tool to test ctfcli flag formats.
+Check your flag format for ctfcli challenge file using GitHub Actions.
 
 <div align="center">
   <img src="./demo.png" width="80%">
@@ -29,7 +29,7 @@ misc/
 ### Use with GitHub Actions
 
 ```yaml
-name: Unit Test for CTFd/ctfcli
+name: Flag Check
 
 on:
   pull_request:
@@ -43,7 +43,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: Unit Test for CTFd/ctfcli
+      - name: Check Flag Format
         uses: xryuseix/ctfcli-unit-test@v1.0.0
         with:
           target_directory: example

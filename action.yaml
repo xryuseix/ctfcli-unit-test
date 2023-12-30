@@ -1,5 +1,5 @@
 name: ctfcli Unit Test
-description: Unit Test Tool for CTFd/ctfcli
+description: Check your flag format for ctfcli challenge file.
 author: xryuseix
 runs:
  using: docker
