@@ -145,8 +145,9 @@ func LoadChalls(rootDir string) (map[string](Challenge), map[string](Flag), erro
 	return challs, flags, nil
 }
 
-func UnitTest(challs map[string](Challenge), flagMap map[string](Flag)) {
+func UnitTest(challs map[string](Challenge), flagMap map[string](Flag)) bool {
 	fmt.Println("== Unit testing...")
+	isErr := false
 	for challPath, flags := range flagMap {
 		fmt.Printf("\n=== Unit testing the challenge: %v\n", challPath)
 		chall := challs[challPath]
@@ -176,18 +177,27 @@ func UnitTest(challs map[string](Challenge), flagMap map[string](Flag)) {
 				fmt.Printf("\x1b[32mPASS\x1b[0m: %v (%v)\n", flag, challPath)
 			} else {
 				fmt.Printf("\x1b[31mFAIL\x1b[0m: %v (%v)\n", flag, challPath)
+				isErr = true
 			}
 		}
 	}
+	return isErr
 }
 
 func main() {
-	rootDir := "example"
+	rootDir := os.Getenv("INPUT_TARGET_DIRECTORY")
+	if rootDir == "" {
+		rootDir = "."
+	}
+
 	challs, flags, err := LoadChalls(rootDir)
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
 	fmt.Println("")
-	UnitTest(challs, flags)
+	isErr := UnitTest(challs, flags)
+	if isErr {
+		os.Exit(1)
+	}
 }
