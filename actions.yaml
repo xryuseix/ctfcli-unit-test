@@ -1,0 +1,13 @@
+name: ctfcli Unit Test
+description: Unit Test Tool for CTFd/ctfcli
+author: xryuseix
+runs:
+ using: docker
+ image: Dockerfile
+branding:
+ icon: flag
+ color: red
+inputs:
+ target_directory:
+   description: 'A directory where has the genre directories'
+   default: '.'
