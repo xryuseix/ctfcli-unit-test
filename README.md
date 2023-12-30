@@ -4,6 +4,10 @@
 
 CI tool to test ctfcli flag formats.
 
+<div align="center">
+  <img src="./demo.png" width="80%">
+</div>
+
 ## Usage
 
 ### Prepreation
@@ -54,5 +58,3 @@ make run
 # change INPUT_TARGET_DIRECTORY
 make build && INPUT_TARGET_DIRECTORY="example" ./out
 ```
-
-![demo](demo.png)
