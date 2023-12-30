@@ -1,0 +1,25 @@
+# ctfcli challenge file
+name: "misc sample1"
+author: "god_of_ctf"
+category: "misc"
+description: |
+    flag is static and only one
+
+# test this flag
+flags:
+    - "ok_flag{Qwerty1234}" # comment
+
+
+# ignore under this line
+tags:
+    - difficult_problem
+value: 500
+type: dynamic
+extra:
+    initial: 500
+    decay: 200
+    minimum: 100
+image: null
+host: null
+state: visible
+version: "0.1"

@@ -1,0 +1,7 @@
+flag{LOVE_CTF}
+flag{ok_LOVE_CTF_ok}
+flag{ok_LOVE_CTF}
+flag{ng_LOVE_ctf}
+flag{ok_LIKE_CTF_ok}
+flag{LIKE_CTF_ok}
+flag{ng_LIVE_CTF_ng}

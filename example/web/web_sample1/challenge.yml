@@ -1,0 +1,32 @@
+# ctfcli challenge file
+name: "web sample1"
+author: "god_of_ctf"
+category: "web"
+description: |
+    A regex case sensitive flag
+
+# test this flag
+flags:
+    - {
+        type: "regex",
+        content: "flag{(.*)LOVE_CTF(.*)}",
+    }
+    - {
+        type: "regex",
+        content: "flag{(.*)LIKE_CTF(.*)}",
+    }
+
+
+# ignore under this line
+tags:
+    - difficult_problem
+value: 500
+type: dynamic
+extra:
+    initial: 500
+    decay: 200
+    minimum: 100
+image: null
+host: null
+state: visible
+version: "0.1"

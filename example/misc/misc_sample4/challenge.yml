@@ -1,0 +1,34 @@
+# ctfcli challenge file
+name: "misc sample2"
+author: "god_of_ctf"
+category: "misc"
+description: |
+    flag is static and multiple and case insensitive
+
+# test this flag
+flags:
+    - {
+        type: "static",
+        content: "ok_flag{Qwerty1234}",
+        data: "case_insensitive",
+    }
+    - {
+        type: "static",
+        content: "ng_flag{Qwerty5678}",
+        data: "case_insensitive",
+    }
+
+
+# ignore under this line
+tags:
+    - difficult_problem
+value: 500
+type: dynamic
+extra:
+    initial: 500
+    decay: 200
+    minimum: 100
+image: null
+host: null
+state: visible
+version: "0.1"

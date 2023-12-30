@@ -1,0 +1,2 @@
+ok_flag{Qwerty5678}
+ng_flag{Qwerty123411111}
