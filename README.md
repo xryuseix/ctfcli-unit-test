@@ -1,8 +1,26 @@
 [![Test](https://github.com/xryuseix/ctfcli-unit-test/actions/workflows/test.yaml/badge.svg)](https://github.com/xryuseix/ctfcli-unit-test/actions/workflows/test.yaml)
 
-# [Unit Test Tool for CTFd/ctfcli](https://github.com/CTFd/ctfcli)
+# Unit Test Tool for [CTFd/ctfcli](https://github.com/CTFd/ctfcli)
+
+CI tool to test ctfcli flag formats.
 
 ## Usage
+
+### Prepreation
+
+prepare directory like **[./example](https://github.com/xryuseix/ctfcli-unit-test/tree/main/example)** ([ctfcli](https://github.com/CTFd/ctfcli) format).
+
+```txt
+web/
+  ├chall1/
+          ├── challenge.yml
+          ├── flag.txt
+  ├chall2/
+          ├── challenge.yml
+          ├── flag.txt
+misc/
+  ├ ...
+```
 
 ### Use with GitHub Actions
 
@@ -22,7 +40,7 @@ jobs:
       - uses: actions/checkout@v3
 
       - name: Unit Test for CTFd/ctfcli
-        uses: xryuseix/ctfcli-unit-test@v1
+        uses: xryuseix/ctfcli-unit-test@v1.0.0
         with:
           target_directory: example
 ```
