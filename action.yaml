@@ -2,12 +2,14 @@ name: ctfcli Unit Test
 description: Check your flag format for ctfcli challenge file.
 author: xryuseix
 runs:
- using: docker
- image: Dockerfile
+  using: docker
+  image: Dockerfile
 branding:
- icon: flag
- color: red
+  icon: flag
+  color: red
 inputs:
- target_directory:
-   description: 'A directory where has the genre directories'
-   default: '.'
+  target_directory:
+    description: 'A directory where has the genre directories'
+    default: '.'
+  config_file:
+    description: 'A config file path'
