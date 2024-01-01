@@ -23,6 +23,10 @@ type Challenge struct {
 	Flags []YamlFlag
 }
 
+type Config struct {
+	Genre []string `yaml:"genre,omitempty"`
+}
+
 func ParseChall(filePath string, content []byte) (Challenge, error) {
 	text := string(content)
 	if strings.Contains(text, "\t") {
@@ -90,19 +94,35 @@ func ParseFlag(filePath string, content []byte) Flag {
 	return strings.Split(text, "\n")
 }
 
-func LoadChalls(rootDir string) (map[string](Challenge), map[string](Flag), error) {
+func LoadChalls(rootDir string, config Config) (map[string](Challenge), map[string](Flag), error) {
 	challs := map[string](Challenge){}
 	flags := map[string](Flag){}
 
 	fmt.Println("== Reading the challenges...")
-	genres, err := os.ReadDir(rootDir)
-	if err != nil {
-		fmt.Printf("\x1b[31mError\x1b[0m: reading the directory %v: %v\n", ".", err)
-		return challs, flags, err
+	genres := []string{}
+
+	if config.Genre != nil {
+		for _, genre := range config.Genre {
+			genrePath := fmt.Sprintf("%s/%s", rootDir, genre)
+			if _, err := os.Stat(genrePath); os.IsNotExist(err) {
+				fmt.Printf("\x1b[33mWarning\x1b[0m: the genre %v is not found.\n", genre)
+			} else {
+				genres = append(genres, genre)
+			}
+		}
+	} else {
+		genreEnts, err := os.ReadDir(rootDir)
+		if err != nil {
+			fmt.Printf("\x1b[31mError\x1b[0m: reading the directory %v: %v\n", rootDir, err)
+			return challs, flags, err
+		}
+		for _, genreEnt := range genreEnts {
+			genres = append(genres, genreEnt.Name())
+		}
 	}
 
 	for _, genre := range genres {
-		genrePath := fmt.Sprintf("%s/%s", rootDir, genre.Name())
+		genrePath := fmt.Sprintf("%s/%s", rootDir, genre)
 		challDirs, err := os.ReadDir(genrePath)
 		if err != nil {
 			fmt.Printf("\x1b[31mError\x1b[0m: reading the directory %v: %v\n", ".", err)
@@ -184,16 +204,41 @@ func UnitTest(challs map[string](Challenge), flagMap map[string](Flag)) bool {
 	return isErr
 }
 
+func GetConfig(file string) Config {
+	if file == "" {
+		return Config{}
+	}
+
+	content, err := os.ReadFile(file)
+	if err != nil {
+		fmt.Printf("\x1b[31mError\x1b[0m: reading the config file %v: %v\n", file, err)
+		return Config{}
+	}
+
+	var config Config
+	err = yaml.Unmarshal(content, &config)
+	if err != nil {
+		fmt.Printf("\x1b[31mError\x1b[0m: unmarshalling the file %v: %v\n", file, err)
+		return Config{}
+	}
+
+	return config
+}
+
 func main() {
 	rootDir := os.Getenv("INPUT_TARGET_DIRECTORY")
 	if rootDir == "" {
 		rootDir = "."
 	}
 
-	challs, flags, err := LoadChalls(rootDir)
+	configFile := os.Getenv("INPUT_CONFIG_FILE")
+
+	config := GetConfig(configFile)
+
+	challs, flags, err := LoadChalls(rootDir, config)
 	if err != nil {
 		fmt.Println(err)
-		return
+		os.Exit(1)
 	}
 	fmt.Println("")
 	isErr := UnitTest(challs, flags)

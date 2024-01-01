@@ -24,6 +24,17 @@ web/
           ├── flag.txt
 misc/
   ├ ...
+config.yaml
+```
+
+config_file is optional. Create the following.
+
+```yaml
+# config.yaml
+genre:
+  - web
+  - misc
+  - osint
 ```
 
 ### Use with GitHub Actions
@@ -47,6 +58,7 @@ jobs:
         uses: xryuseix/ctfcli-unit-test@v1.0.0
         with:
           target_directory: example
+          config_file: config.yaml
 ```
 
 ### Use with Command Line
@@ -55,6 +67,6 @@ jobs:
 # try to run
 make run
 # for production
-# change INPUT_TARGET_DIRECTORY
-make build && INPUT_TARGET_DIRECTORY="example" ./out
+# change INPUT_TARGET_DIRECTORY and INPUT_CONFIG_FILE
+make build && INPUT_TARGET_DIRECTORY="example" INPUT_CONFIG_FILE="config.yaml" ./out
 ```
