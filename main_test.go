@@ -78,3 +78,45 @@ flags:
 		}
 	}
 }
+
+func TestUnitTestOk(t *testing.T) {
+	challs := map[string]Challenge{
+		"challenge1": {
+			Flags: []YamlFlag{
+				{
+					Type:    "regex",
+					Content: "flag{.*flag1.*}",
+					Data:    "case_insensitive",
+				},
+			},
+		},
+	}
+	flags := map[string][]string{
+		"challenge1": {"flag{flag1}"},
+	}
+	isErr := UnitTest(challs, flags)
+	if isErr {
+		t.Errorf("expected false, actual true")
+	}
+}
+
+func TestUnitTestNg(t *testing.T) {
+	challs := map[string]Challenge{
+		"challenge1": {
+			Flags: []YamlFlag{
+				{
+					Type:    "regex",
+					Content: "flag[123]",
+					Data:    "case_insensitive",
+				},
+			},
+		},
+	}
+	flags := map[string][]string{
+		"challenge1": {"flag{flag1}"},
+	}
+	isErr := UnitTest(challs, flags)
+	if !isErr {
+		t.Errorf("expected error, actual no error")
+	}
+}

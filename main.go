@@ -187,7 +187,8 @@ func UnitTest(challs map[string](Challenge), flagMap map[string](Flag)) bool {
 				}
 				if challFlags.Type == "regex" {
 					reg := regexp.MustCompile(expected)
-					if reg.MatchString(actually) {
+					ms := reg.FindStringIndex(actually)
+					if ms != nil && ms[0] == 0 && ms[1] == len(actually) {
 						ok = true
 						break
 					}
