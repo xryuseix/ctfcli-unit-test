@@ -1,3 +1,4 @@
 ok_flag{Qwerty1234}
 ok_flag{qwerTy1234}
 ng_flag{Qwerty56789}
+!
