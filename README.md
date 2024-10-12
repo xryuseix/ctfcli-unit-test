@@ -74,7 +74,7 @@ jobs:
       - uses: actions/checkout@v3
 
       - name: Check Flag Format
-        uses: xryuseix/ctfcli-unit-test@v1.1.0
+        uses: xryuseix/ctfcli-unit-test@v2.0.1
         with:
           target_directory: example
           config_file: example/config.yaml
