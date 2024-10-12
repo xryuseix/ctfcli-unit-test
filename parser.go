@@ -86,7 +86,7 @@ type Flag struct {
 type Flags = []Flag
 
 func RemoveComment(line string) string {
-	reg := regexp.MustCompile(`\s*#[^#]*`)
+	reg := regexp.MustCompile(`\s*#[^#\s]*`)
 	matches := reg.FindAllStringIndex(line, -1)
 	if len(matches) == 0 {
 		return line

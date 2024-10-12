@@ -50,9 +50,10 @@ flags:
 
 ```txt:flag.txt
 # flag.txt
-flag{flag} # # this is comment
+flag{flag} # this is comment
 flag{Hoge123} # you can use regex or case_insensitive
 !flag{flag} # expect this flag to be wrong(assert_failed).
+flag{flag\#escaped} # you can escape `#`
 ```
 
 ### Use with GitHub Actions

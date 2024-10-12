@@ -28,6 +28,7 @@ func TestRemoveComment(t *testing.T) {
 		"A # a",
 		"A\\#escaped",
 		"\\#escaped#comment\\#not-escaped",
+		"\\#escaped # comment",
 	}
 	expected := []string{
 		"",
@@ -37,6 +38,7 @@ func TestRemoveComment(t *testing.T) {
 		"A",
 		"A",
 		"A#escaped",
+		"#escaped",
 		"#escaped",
 	}
 	for i := range lines {

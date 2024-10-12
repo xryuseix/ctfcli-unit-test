@@ -8,3 +8,4 @@ description: |
 # test this flag
 flags:
   - "ok_flag{Qwerty1234}" # comment
+  - "ok_flag{Qwerty1234#escaped}" # comment

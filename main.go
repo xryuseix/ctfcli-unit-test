@@ -100,10 +100,11 @@ func UnitTest(challs map[string](Challenge), flagMap map[string](Flags)) bool {
 				if challFlags.Type == "static" {
 					if fail && actually != expected {
 						ok = true
+						break
 					} else if !fail && actually == expected {
 						ok = true
+						break
 					}
-					break
 				}
 				if challFlags.Type == "regex" {
 					reg := regexp.MustCompile(expected)
