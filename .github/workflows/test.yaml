@@ -27,7 +27,7 @@ jobs:
 
       - name: ctfcli-unit-test
         continue-on-error: true # failture test is included
-        uses: xryuseix/ctfcli-unit-test@v2.0.0
+        uses: xryuseix/ctfcli-unit-test@v2.0.1
         with:
           target_directory: example
           config_file: example/config.yaml
