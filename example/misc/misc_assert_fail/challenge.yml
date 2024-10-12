@@ -1,10 +1,10 @@
 # ctfcli challenge file
-name: "misc comment"
+name: "misc assert fail"
 author: "god_of_ctf"
 category: "misc"
 description: |
-  flag with comment
+  assert fail
 
 # test this flag
 flags:
-  - "ok_flag{Qwerty1234}" # comment
+  - "ok_flag{Qwerty1234}"

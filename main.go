@@ -114,9 +114,9 @@ func UnitTest(challs map[string](Challenge), flagMap map[string](Flags)) bool {
 					}
 				}
 			}
-			assertMsg := "is assert_ok"
+			assertMsg := "is assert_\x1b[32mok\x1b[0m"
 			if flag.fail {
-				assertMsg = "is assert_ng"
+				assertMsg = "is assert_\x1b[31mng\x1b[0m"
 			}
 			if ok {
 				fmt.Printf("\x1b[32mPASS\x1b[0m: %v %s (%v)\n", flag.flag, assertMsg, challPath)

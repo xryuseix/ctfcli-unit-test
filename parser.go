@@ -104,10 +104,13 @@ func RemoveComment(line string) string {
 	return line
 }
 
-func RemoveFailFlag(flag string) (string, bool) {
-	// reg := regexp.MustCompile(`^!`)
-	// return reg.ReplaceString(flag, ""), reg.MatchString(flag)
-	return flag, false
+func RemoveFailFlag(line string) (string, bool) {
+	reg := regexp.MustCompile(`^\s*!`)
+	idx := reg.FindStringIndex(line)
+	if idx == nil {
+		return line, false
+	}
+	return line[idx[1]:], true
 }
 
 func ParseFlag(content []byte) Flags {

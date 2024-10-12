@@ -1,0 +1,2 @@
+ok_flag{Qwerty1234}
+!assert_ng_flag{qwerty1234} # q is not capitalized

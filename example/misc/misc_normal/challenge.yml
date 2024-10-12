@@ -3,23 +3,22 @@ name: "misc normal"
 author: "god_of_ctf"
 category: "misc"
 description: |
-    flag is static and only one
+  flag is static and only one
 
 # test this flag
 flags:
-    # written wrong flag "flag{qwerty1234}" (q is lowercase)" in flag.txt
-    - "ok_flag{Qwerty1234}" # comment
-
+  # written wrong flag "flag{qwerty1234}" (q is lowercase)" in flag.txt
+  - "ok_flag{Qwerty1234}" # comment
 
 # ignore under this line
 tags:
-    - difficult_problem
+  - difficult_problem
 value: 500
 type: dynamic
 extra:
-    initial: 500
-    decay: 200
-    minimum: 100
+  initial: 500
+  decay: 200
+  minimum: 100
 image: null
 host: null
 state: visible

@@ -47,9 +47,38 @@ func TestRemoveComment(t *testing.T) {
 	}
 }
 
+func TestRemoveFailFlag(t *testing.T) {
+	lines := []string{
+		"A",
+		"!",
+		"!A",
+		"!!A",
+		"A{great!}",
+		"!A#comment",
+	}
+	type LineWithFail struct {
+		line string
+		fail bool
+	}
+	expected := []LineWithFail{
+		{line: "A", fail: false},
+		{line: "", fail: true},
+		{line: "A", fail: true},
+		{line: "!A", fail: true},
+		{line: "A{great!}", fail: false},
+		{line: "A#comment", fail: true},
+	}
+	for i := range lines {
+		actualLine, actualFail := RemoveFailFlag(lines[i])
+		if actualLine != expected[i].line || actualFail != expected[i].fail {
+			t.Errorf("expected %v, actual %v", expected[i], LineWithFail{line: actualLine, fail: actualFail})
+		}
+	}
+}
+
 func TestParseFlag(t *testing.T) {
 	content := []byte(
-		"\n\nflag{flag1}\nflag{flag2}\n\nflag{flag3} # comment\nflag{flag4}# comment2\nflag{flag5}#comment3\n#comment_line\nflag{flag6\\#escaped}\nflag{flag7\\\\#escaped2}\n!flag{flag8_assert_fail}\n#comment_line\n\n")
+		"\n\nflag{flag1}\nflag{flag2}\n\nflag{flag3} # comment\nflag{flag4}# comment2\nflag{flag5}#comment3\n#comment_line\nflag{flag6\\#escaped}\nflag{flag7\\\\#escaped2}\n!flag{flag8_assert_fail}#comment\n#comment_line\n\n")
 	expected := Flags{
 		Flag{flag: "flag{flag1}", fail: false},
 		Flag{flag: "flag{flag2}", fail: false},

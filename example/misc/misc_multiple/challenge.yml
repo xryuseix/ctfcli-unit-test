@@ -3,30 +3,9 @@ name: "misc multiple"
 author: "god_of_ctf"
 category: "misc"
 description: |
-    flag is static and multiple
+  flag is static and multiple
 
 # test this flag
 flags:
-    - {
-        type: "static",
-        content: "ng_flag{Qwerty1234}",
-    }
-    - {
-        type: "static",
-        content: "ok_flag{Qwerty5678}",
-    }
-
-
-# ignore under this line
-tags:
-    - difficult_problem
-value: 500
-type: dynamic
-extra:
-    initial: 500
-    decay: 200
-    minimum: 100
-image: null
-host: null
-state: visible
-version: "0.1"
+  - { type: "static", content: "ng_flag{Qwerty1234}" }
+  - { type: "static", content: "ok_flag{Qwerty5678}" }
