@@ -7,5 +7,5 @@ description: |
 
 # test this flag
 flags:
-  - { type: "regex", content: "flag{(.*)LOVE_CTF(.*)}" }
-  - { type: "regex", content: "flag{(.*)LIKE_CTF(.*)}" }
+  - { type: "regex", content: "flag{.*LOVE_CTF.*}" }
+  - { type: "regex", content: "flag{.*LIKE_CTF.*}" }

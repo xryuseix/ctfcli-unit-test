@@ -29,12 +29,30 @@ config.yaml
 
 config_file is optional. Create the following.
 
-```yaml
+```yaml:config.yaml
 # config.yaml
 genre:
   - web
   - misc
   - osint
+```
+
+```yaml:challenge.yml
+# challenge.yml
+flags:
+  - "flag{flag}"
+  - {
+      type: "regex",
+      content: "flag{hoge.*}",
+      data: "case_insensitive",
+    }
+```
+
+```txt:flag.txt
+# flag.txt
+flag{flag} # # this is comment
+flag{Hoge123} # you can use regex or case_insensitive
+!flag{flag} # expect this flag to be wrong(assert_failed).
 ```
 
 ### Use with GitHub Actions
@@ -58,7 +76,7 @@ jobs:
         uses: xryuseix/ctfcli-unit-test@v1.1.0
         with:
           target_directory: example
-          config_file: config.yaml
+          config_file: example/config.yaml
 ```
 
 ### Use with Command Line
@@ -68,5 +86,5 @@ jobs:
 make run
 # for production
 # change INPUT_TARGET_DIRECTORY and INPUT_CONFIG_FILE
-make build && INPUT_TARGET_DIRECTORY="example" INPUT_CONFIG_FILE="config.yaml" ./out
+make build && INPUT_TARGET_DIRECTORY="example" INPUT_CONFIG_FILE="example/config.yaml" ./out
 ```

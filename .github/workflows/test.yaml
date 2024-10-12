@@ -30,3 +30,4 @@ jobs:
         uses: xryuseix/ctfcli-unit-test@main
         with:
           target_directory: example
+          config_file: example/config.yaml
