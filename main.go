@@ -98,7 +98,7 @@ func LoadChalls(rootDir string, config Config) (map[string](Challenge), map[stri
 	challs := map[string](Challenge){}
 	flags := map[string](Flag){}
 
-	fmt.Println("== Reading the challenges...")
+	fmt.Println("== Loading the challenges...")
 	genres := []string{}
 
 	if config.Genre != nil {
@@ -113,7 +113,7 @@ func LoadChalls(rootDir string, config Config) (map[string](Challenge), map[stri
 	} else {
 		genreEnts, err := os.ReadDir(rootDir)
 		if err != nil {
-			fmt.Printf("\x1b[31mError\x1b[0m: reading the directory %v: %v\n", rootDir, err)
+			fmt.Printf("\x1b[31mError\x1b[0m: loading the directory %v: %v\n", rootDir, err)
 			return challs, flags, err
 		}
 		for _, genreEnt := range genreEnts {
@@ -125,14 +125,14 @@ func LoadChalls(rootDir string, config Config) (map[string](Challenge), map[stri
 		genrePath := fmt.Sprintf("%s/%s", rootDir, genre)
 		challDirs, err := os.ReadDir(genrePath)
 		if err != nil {
-			fmt.Printf("\x1b[31mError\x1b[0m: reading the directory %v: %v\n", ".", err)
+			fmt.Printf("\x1b[31mError\x1b[0m: loading the directory %v: %v\n", ".", err)
 			return challs, flags, err
 		}
 		for _, chall := range challDirs {
 			challPath := fmt.Sprintf("%s/%s", genrePath, chall.Name())
 			files, err := os.ReadDir(challPath)
 			if err != nil {
-				fmt.Printf("\x1b[31mError\x1b[0m: reading the directory %v: %v\n", ".", err)
+				fmt.Printf("\x1b[31mError\x1b[0m: loading the directory %v: %v\n", ".", err)
 				return challs, flags, err
 			}
 			for _, file := range files {
@@ -141,11 +141,11 @@ func LoadChalls(rootDir string, config Config) (map[string](Challenge), map[stri
 				}
 
 				filePath := fmt.Sprintf("%s/%s", challPath, file.Name())
-				fmt.Println("=== Reading the file: " + filePath)
+				fmt.Println("=== Leading the file: " + filePath)
 
 				content, err := os.ReadFile(filePath)
 				if err != nil {
-					fmt.Printf("\x1b[31mError\x1b[0m: reading the file %v: %v\n", file.Name(), err)
+					fmt.Printf("\x1b[31mError\x1b[0m: loading the file %v: %v\n", file.Name(), err)
 					return challs, flags, err
 				}
 				if file.Name() == "challenge.yml" || file.Name() == "challenge.yaml" {
@@ -212,7 +212,7 @@ func GetConfig(file string) Config {
 
 	content, err := os.ReadFile(file)
 	if err != nil {
-		fmt.Printf("\x1b[31mError\x1b[0m: reading the config file %v: %v\n", file, err)
+		fmt.Printf("\x1b[31mError\x1b[0m: loading the config file %v: %v\n", file, err)
 		return Config{}
 	}
 
