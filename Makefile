@@ -2,7 +2,7 @@ run:
 	INPUT_TARGET_DIRECTORY="example" INPUT_CONFIG_FILE="example/config.yaml" go run .
 
 build:
-	GOARCH=amd64 GOOS=linux go build -ldflags="-s -w" -o out .
+	go build -ldflags="-s -w" -o out .
 
 test:
 	go test -v ./...
