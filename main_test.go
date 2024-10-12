@@ -4,23 +4,64 @@ import (
 	"testing"
 )
 
-func AssertArrayEqual(t *testing.T, expected []string, actual []string) {
+func AssertFlagArrayEqual(t *testing.T, expected []Flag, actual []Flag) {
 	if len(expected) != len(actual) {
 		t.Errorf("expected %v, actual %v", expected, actual)
 	}
 	for i := range expected {
-		if expected[i] != actual[i] {
+		if expected[i].flag != actual[i].flag {
+			t.Errorf("expected idx %v is %v, actual %v", i, expected[i], actual[i])
+		}
+		if expected[i].fail != actual[i].fail {
 			t.Errorf("expected idx %v is %v, actual %v", i, expected[i], actual[i])
 		}
 	}
 }
 
+func TestRemoveComment(t *testing.T) {
+	lines := []string{
+		"#comment",
+		"A#",
+		"A#comment",
+		"A #",
+		"A  # ",
+		"A # a",
+		"A\\#escaped",
+		"\\#escaped#comment\\#not-escaped",
+	}
+	expected := []string{
+		"",
+		"A",
+		"A",
+		"A",
+		"A",
+		"A",
+		"A#escaped",
+		"#escaped",
+	}
+	for i := range lines {
+		actual := RemoveComment(lines[i])
+		if actual != expected[i] {
+			t.Errorf("expected %v, actual %v", expected[i], actual)
+		}
+	}
+}
+
 func TestParseFlag(t *testing.T) {
-	filePath := "example/flag.txt"
-	content := []byte("\n\nflag{flag1}\nflag{flag2}\n\nflag{flag3}\n\n")
-	expected := []string{"flag{flag1}", "flag{flag2}", "flag{flag3}"}
-	actual := ParseFlag(filePath, content)
-	AssertArrayEqual(t, expected, actual)
+	content := []byte(
+		"\n\nflag{flag1}\nflag{flag2}\n\nflag{flag3} # comment\nflag{flag4}# comment2\nflag{flag5}#comment3\n#comment_line\nflag{flag6\\#escaped}\nflag{flag7\\\\#escaped2}\n!flag{flag8_assert_fail}\n#comment_line\n\n")
+	expected := Flags{
+		Flag{flag: "flag{flag1}", fail: false},
+		Flag{flag: "flag{flag2}", fail: false},
+		Flag{flag: "flag{flag3}", fail: false},
+		Flag{flag: "flag{flag4}", fail: false},
+		Flag{flag: "flag{flag5}", fail: false},
+		Flag{flag: "flag{flag6#escaped}", fail: false},
+		Flag{flag: "flag{flag7\\#escaped2}", fail: false},
+		Flag{flag: "flag{flag8_assert_fail}", fail: true},
+	}
+	actual := ParseFlag(content)
+	AssertFlagArrayEqual(t, expected, actual)
 }
 
 func TestParseChall(t *testing.T) {
@@ -91,8 +132,13 @@ func TestUnitTestOk(t *testing.T) {
 			},
 		},
 	}
-	flags := map[string][]string{
-		"challenge1": {"flag{flag1}"},
+	flags := map[string]Flags{
+		"challenge1": {
+			Flag{
+				flag: "flag{flag1}",
+				fail: false,
+			},
+		},
 	}
 	isErr := UnitTest(challs, flags)
 	if isErr {
@@ -112,8 +158,8 @@ func TestUnitTestNg(t *testing.T) {
 			},
 		},
 	}
-	flags := map[string][]string{
-		"challenge1": {"flag{flag1}"},
+	flags := map[string]Flags{
+		"challenge1": {Flag{flag: "flag{flag1}", fail: false}},
 	}
 	isErr := UnitTest(challs, flags)
 	if !isErr {

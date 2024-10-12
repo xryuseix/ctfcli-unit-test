@@ -1,0 +1,4 @@
+ok_flag{Qwerty1234} # comment
+ok_flag{Qwerty1234}#comment
+ok_flag{Qwerty1234\#escaped} # equal to ok_flag{Qwerty1234#escaped}
+#comment-line

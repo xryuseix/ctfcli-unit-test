@@ -1,13 +1,12 @@
 # ctfcli challenge file
-name: "misc normal"
+name: "misc comment"
 author: "god_of_ctf"
 category: "misc"
 description: |
-    flag is static and only one
+    flag with comment
 
 # test this flag
 flags:
-    # written wrong flag "flag{qwerty1234}" (q is lowercase)" in flag.txt
     - "ok_flag{Qwerty1234}" # comment
 
 

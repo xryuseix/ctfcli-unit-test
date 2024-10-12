@@ -1,5 +1,5 @@
 run:
-	INPUT_TARGET_DIRECTORY="example" INPUT_CONFIG_FILE="config.yaml" go run .
+	INPUT_TARGET_DIRECTORY="example" INPUT_CONFIG_FILE="example/config.yaml" go run .
 
 build:
 	GOARCH=amd64 GOOS=linux go build -ldflags="-s -w" -o out .
