@@ -9,3 +9,4 @@ description: |
 flags:
   - { type: "static", content: "ng_flag{Qwerty1234}" }
   - { type: "static", content: "ok_flag{Qwerty5678}" }
+type: dynamic

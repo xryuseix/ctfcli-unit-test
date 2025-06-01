@@ -86,6 +86,13 @@ func UnitTest(challs map[string](Challenge), flagMap map[string](Flags)) bool {
 	for challPath, flags := range flagMap {
 		fmt.Printf("\n=== Unit testing the challenge: %v\n", challPath)
 		chall := challs[challPath]
+
+		// Skip testing if challenge type is neither static nor dynamic
+		if chall.Type != "" && chall.Type != "static" && chall.Type != "dynamic" {
+			fmt.Printf("\x1b[33mSKIP\x1b[0m: Challenge skipped (type: %v) (%v)\n", chall.Type, challPath)
+			continue
+		}
+
 		for _, flag := range flags {
 			ok := false
 			for _, challFlags := range chall.Flags {

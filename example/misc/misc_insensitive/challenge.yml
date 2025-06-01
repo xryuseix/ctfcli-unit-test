@@ -9,3 +9,4 @@ description: |
 flags:
   - { type: "static", content: "ok_flag{Qwerty1234}", data: "case_insensitive" }
   - { type: "static", content: "ng_flag{Qwerty5678}", data: "case_insensitive" }
+type: dynamic

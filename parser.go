@@ -15,10 +15,12 @@ type YamlFlag struct {
 }
 
 type ChallYaml struct {
+	Type  string        `yaml:"type,omitempty"`
 	Flags []interface{} `yaml:"flags"`
 }
 
 type Challenge struct {
+	Type  string
 	Flags []YamlFlag
 }
 
@@ -34,6 +36,7 @@ func ParseChall(filePath string, content []byte) (Challenge, error) {
 	}
 
 	chall := Challenge{
+		Type:  "",
 		Flags: []YamlFlag{},
 	}
 
@@ -43,6 +46,8 @@ func ParseChall(filePath string, content []byte) (Challenge, error) {
 		fmt.Printf("\x1b[31mError\x1b[0m: unmarshalling the file %v: %v\n", filePath, err)
 		return chall, err
 	}
+
+	chall.Type = challYaml.Type
 
 	for _, flag := range challYaml.Flags {
 		switch flag := flag.(type) {
