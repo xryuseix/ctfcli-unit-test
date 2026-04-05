@@ -3,24 +3,25 @@ package main
 import (
 	"fmt"
 	"os"
+	"path/filepath"
 	"regexp"
 	"strings"
 
 	"gopkg.in/yaml.v3"
 )
 
-func LoadChalls(rootDir string, config Config) (map[string](Challenge), map[string](Flags), error) {
-	challs := map[string](Challenge){}
-	flags := map[string](Flags){}
+func LoadChalls(rootDir string, config Config) (map[string]Challenge, map[string]Flags, error) {
+	challs := map[string]Challenge{}
+	flags := map[string]Flags{}
 
 	fmt.Println("== Loading the challenges...")
 	genres := []string{}
 
 	if config.Genre != nil {
 		for _, genre := range config.Genre {
-			genrePath := fmt.Sprintf("%s/%s", rootDir, genre)
+			genrePath := filepath.Join(rootDir, genre)
 			if _, err := os.Stat(genrePath); os.IsNotExist(err) {
-				fmt.Printf("\x1b[33mWarning\x1b[0m: the genre %v is not found.\n", genre)
+				fmt.Printf("%sWarning%s: the genre %v is not found.\n", colorYellow, colorReset, genre)
 			} else {
 				genres = append(genres, genre)
 			}
@@ -28,7 +29,7 @@ func LoadChalls(rootDir string, config Config) (map[string](Challenge), map[stri
 	} else {
 		genreEnts, err := os.ReadDir(rootDir)
 		if err != nil {
-			fmt.Printf("\x1b[31mError\x1b[0m: loading the directory %v: %v\n", rootDir, err)
+			fmt.Printf("%sError%s: loading the directory %v: %v\n", colorRed, colorReset, rootDir, err)
 			return challs, flags, err
 		}
 		for _, genreEnt := range genreEnts {
@@ -37,17 +38,17 @@ func LoadChalls(rootDir string, config Config) (map[string](Challenge), map[stri
 	}
 
 	for _, genre := range genres {
-		genrePath := fmt.Sprintf("%s/%s", rootDir, genre)
+		genrePath := filepath.Join(rootDir, genre)
 		challDirs, err := os.ReadDir(genrePath)
 		if err != nil {
-			fmt.Printf("\x1b[31mError\x1b[0m: loading the directory %v: %v\n", ".", err)
+			fmt.Printf("%sError%s: loading the directory %v: %v\n", colorRed, colorReset, genrePath, err)
 			return challs, flags, err
 		}
 		for _, chall := range challDirs {
-			challPath := fmt.Sprintf("%s/%s", genrePath, chall.Name())
+			challPath := filepath.Join(genrePath, chall.Name())
 			files, err := os.ReadDir(challPath)
 			if err != nil {
-				fmt.Printf("\x1b[31mError\x1b[0m: loading the directory %v: %v\n", ".", err)
+				fmt.Printf("%sError%s: loading the directory %v: %v\n", colorRed, colorReset, challPath, err)
 				return challs, flags, err
 			}
 			for _, file := range files {
@@ -55,12 +56,12 @@ func LoadChalls(rootDir string, config Config) (map[string](Challenge), map[stri
 					continue
 				}
 
-				filePath := fmt.Sprintf("%s/%s", challPath, file.Name())
-				fmt.Println("=== Leading the file: " + filePath)
+				filePath := filepath.Join(challPath, file.Name())
+				fmt.Println("=== Loading the file: " + filePath)
 
 				content, err := os.ReadFile(filePath)
 				if err != nil {
-					fmt.Printf("\x1b[31mError\x1b[0m: loading the file %v: %v\n", file.Name(), err)
+					fmt.Printf("%sError%s: loading the file %v: %v\n", colorRed, colorReset, file.Name(), err)
 					return challs, flags, err
 				}
 				if file.Name() == "challenge.yml" || file.Name() == "challenge.yaml" {
@@ -80,56 +81,55 @@ func LoadChalls(rootDir string, config Config) (map[string](Challenge), map[stri
 	return challs, flags, nil
 }
 
-func UnitTest(challs map[string](Challenge), flagMap map[string](Flags)) bool {
+func matchFlag(flag Flag, challFlag YamlFlag) bool {
+	actually := flag.flag
+	expected := challFlag.Content
+	if challFlag.Data == "case_insensitive" {
+		expected = strings.ToLower(expected)
+		actually = strings.ToLower(actually)
+	}
+	switch challFlag.Type {
+	case "static":
+		if flag.fail {
+			return actually != expected
+		}
+		return actually == expected
+	case "regex":
+		reg := regexp.MustCompile(expected)
+		ms := reg.FindStringIndex(actually)
+		return ms != nil && ms[0] == 0 && ms[1] == len(actually)
+	}
+	return false
+}
+
+func UnitTest(challs map[string]Challenge, flagMap map[string]Flags) bool {
 	fmt.Println("== Unit testing...")
 	isErr := false
 	for challPath, flags := range flagMap {
 		fmt.Printf("\n=== Unit testing the challenge: %v\n", challPath)
 		chall := challs[challPath]
 
-		// Skip testing if challenge type is neither static nor dynamic
 		if chall.Type != "" && chall.Type != "static" && chall.Type != "dynamic" {
-			fmt.Printf("\x1b[33mSKIP\x1b[0m: Challenge skipped (type: %v) (%v)\n", chall.Type, challPath)
+			fmt.Printf("%sSKIP%s: Challenge skipped (type: %v) (%v)\n", colorYellow, colorReset, chall.Type, challPath)
 			continue
 		}
 
 		for _, flag := range flags {
 			ok := false
-			for _, challFlags := range chall.Flags {
-				actually := flag.flag
-				fail := flag.fail
-				expected := challFlags.Content
-				caseInSensitive := challFlags.Data == "case_insensitive"
-				if caseInSensitive {
-					expected = strings.ToLower(expected)
-					actually = strings.ToLower(actually)
-				}
-				if challFlags.Type == "static" {
-					if fail && actually != expected {
-						ok = true
-						break
-					} else if !fail && actually == expected {
-						ok = true
-						break
-					}
-				}
-				if challFlags.Type == "regex" {
-					reg := regexp.MustCompile(expected)
-					ms := reg.FindStringIndex(actually)
-					if ms != nil && ms[0] == 0 && ms[1] == len(actually) {
-						ok = true
-						break
-					}
+			for _, challFlag := range chall.Flags {
+				if matchFlag(flag, challFlag) {
+					ok = true
+					break
 				}
 			}
-			assertMsg := "is assert_\x1b[32mok\x1b[0m"
+			assertMsg := fmt.Sprintf("is assert_%sok%s", colorGreen, colorReset)
 			if flag.fail {
-				assertMsg = "is assert_\x1b[31mng\x1b[0m"
+				assertMsg = fmt.Sprintf("is assert_%sng%s", colorRed, colorReset)
 			}
 			if ok {
-				fmt.Printf("\x1b[32mPASS\x1b[0m: %v %s (%v)\n", flag.flag, assertMsg, challPath)
+				fmt.Printf("%sPASS%s: %v %s (%v)\n", colorGreen, colorReset, flag.flag, assertMsg, challPath)
 			} else {
-				fmt.Printf("\x1b[31mFAIL\x1b[0m: %v %s (%v)\n", flag.flag, assertMsg, challPath)
+				fmt.Printf("%sFAIL%s: %v %s (%v)\n", colorRed, colorReset, flag.flag, assertMsg, challPath)
 				isErr = true
 			}
 		}
@@ -137,25 +137,23 @@ func UnitTest(challs map[string](Challenge), flagMap map[string](Flags)) bool {
 	return isErr
 }
 
-func GetConfig(file string) Config {
+func GetConfig(file string) (Config, error) {
 	if file == "" {
-		return Config{}
+		return Config{}, nil
 	}
 
 	content, err := os.ReadFile(file)
 	if err != nil {
-		fmt.Printf("\x1b[31mError\x1b[0m: loading the config file %v: %v\n", file, err)
-		return Config{}
+		return Config{}, fmt.Errorf("loading the config file %v: %w", file, err)
 	}
 
 	var config Config
 	err = yaml.Unmarshal(content, &config)
 	if err != nil {
-		fmt.Printf("\x1b[31mError\x1b[0m: unmarshalling the file %v: %v\n", file, err)
-		return Config{}
+		return Config{}, fmt.Errorf("unmarshalling the config file %v: %w", file, err)
 	}
 
-	return config
+	return config, nil
 }
 
 func main() {
@@ -166,7 +164,11 @@ func main() {
 
 	configFile := os.Getenv("INPUT_CONFIG_FILE")
 
-	config := GetConfig(configFile)
+	config, err := GetConfig(configFile)
+	if err != nil {
+		fmt.Printf("%sError%s: %v\n", colorRed, colorReset, err)
+		os.Exit(1)
+	}
 
 	challs, flags, err := LoadChalls(rootDir, config)
 	if err != nil {

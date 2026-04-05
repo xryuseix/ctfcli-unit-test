@@ -8,6 +8,19 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
+const (
+	colorRed    = "\x1b[31m"
+	colorGreen  = "\x1b[32m"
+	colorYellow = "\x1b[33m"
+	colorReset  = "\x1b[0m"
+)
+
+var (
+	reComment  = regexp.MustCompile(`\s*#[^#\s]*`)
+	reFailFlag = regexp.MustCompile(`^\s*!`)
+	reNewlines = regexp.MustCompile(`\n+`)
+)
+
 type YamlFlag struct {
 	Type    string `yaml:"type,omitempty"`
 	Content string `yaml:"content,omitempty"`
@@ -16,7 +29,7 @@ type YamlFlag struct {
 
 type ChallYaml struct {
 	Type  string        `yaml:"type,omitempty"`
-	Flags []interface{} `yaml:"flags"`
+	Flags []any `yaml:"flags"`
 }
 
 type Challenge struct {
@@ -31,7 +44,7 @@ type Config struct {
 func ParseChall(filePath string, content []byte) (Challenge, error) {
 	text := string(content)
 	if strings.Contains(text, "\t") {
-		fmt.Printf("\x1b[33mWarning\x1b[0m: TAB is not recommended in the YAML file (%v).\nPlease see the FAQ: https://yaml.org/faq.html\n", filePath)
+		fmt.Printf("%sWarning%s: TAB is not recommended in the YAML file (%v).\nPlease see the FAQ: https://yaml.org/faq.html\n", colorYellow, colorReset, filePath)
 		content = []byte(strings.ReplaceAll(text, "\t", "    "))
 	}
 
@@ -43,7 +56,7 @@ func ParseChall(filePath string, content []byte) (Challenge, error) {
 	var challYaml ChallYaml
 	err := yaml.Unmarshal(content, &challYaml)
 	if err != nil {
-		fmt.Printf("\x1b[31mError\x1b[0m: unmarshalling the file %v: %v\n", filePath, err)
+		fmt.Printf("%sError%s: unmarshalling the file %v: %v\n", colorRed, colorReset, filePath, err)
 		return chall, err
 	}
 
@@ -57,26 +70,38 @@ func ParseChall(filePath string, content []byte) (Challenge, error) {
 				Content: flag,
 				Data:    "case_sensitive",
 			})
-		case map[string]interface{}:
+		case map[string]any:
 			flagType, ok := flag["type"]
 			if !ok {
 				flagType = "static"
 			}
 			flagContent, ok := flag["content"]
 			if !ok {
-				return chall, fmt.Errorf("\x1b[31mError\x1b[0m: flag content is not specified")
+				return chall, fmt.Errorf("%sError%s: flag content is not specified", colorRed, colorReset)
 			}
 			flagData, ok := flag["data"]
 			if !ok {
 				flagData = "case_sensitive"
 			}
+			ft, ok := flagType.(string)
+			if !ok {
+				return chall, fmt.Errorf("%sError%s: invalid flag type: %v", colorRed, colorReset, flagType)
+			}
+			fc, ok := flagContent.(string)
+			if !ok {
+				return chall, fmt.Errorf("%sError%s: invalid flag content: %v", colorRed, colorReset, flagContent)
+			}
+			fd, ok := flagData.(string)
+			if !ok {
+				return chall, fmt.Errorf("%sError%s: invalid flag data: %v", colorRed, colorReset, flagData)
+			}
 			chall.Flags = append(chall.Flags, YamlFlag{
-				Type:    flagType.(string),
-				Content: flagContent.(string),
-				Data:    flagData.(string),
+				Type:    ft,
+				Content: fc,
+				Data:    fd,
 			})
 		default:
-			return chall, fmt.Errorf("\x1b[31mError\x1b[0m: unknown flag type: %v", flag)
+			return chall, fmt.Errorf("%sError%s: unknown flag type: %v", colorRed, colorReset, flag)
 		}
 	}
 
@@ -91,8 +116,7 @@ type Flag struct {
 type Flags = []Flag
 
 func RemoveComment(line string) string {
-	reg := regexp.MustCompile(`\s*#[^#\s]*`)
-	matches := reg.FindAllStringIndex(line, -1)
+	matches := reComment.FindAllStringIndex(line, -1)
 	if len(matches) == 0 {
 		return line
 	}
@@ -110,8 +134,7 @@ func RemoveComment(line string) string {
 }
 
 func RemoveFailFlag(line string) (string, bool) {
-	reg := regexp.MustCompile(`^\s*!`)
-	idx := reg.FindStringIndex(line)
+	idx := reFailFlag.FindStringIndex(line)
 	if idx == nil {
 		return line, false
 	}
@@ -119,8 +142,7 @@ func RemoveFailFlag(line string) (string, bool) {
 }
 
 func ParseFlag(content []byte) Flags {
-	reg := regexp.MustCompile(`\n+`)
-	text := reg.ReplaceAllString(string(content), "\n")
+	text := reNewlines.ReplaceAllString(string(content), "\n")
 	text = strings.Trim(text, "\n")
 	var flags Flags
 	for _, flag := range strings.Split(text, "\n") {

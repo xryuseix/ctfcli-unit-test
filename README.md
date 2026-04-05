@@ -71,10 +71,10 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
       - name: Check Flag Format
-        uses: xryuseix/ctfcli-unit-test@v2.0.1
+        uses: xryuseix/ctfcli-unit-test@8f2d231dabd41d41bffe0cd982dd546e402725c3 # v2.0.1
         with:
           target_directory: example
           config_file: example/config.yaml
